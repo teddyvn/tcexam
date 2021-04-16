@@ -51,6 +51,13 @@ if (isset($_REQUEST['testid']) and ($_REQUEST['testid'] > 0)) {
     exit;
 }
 
+if (isset($_REQUEST['testuser_id']) and ($_REQUEST['testuser_id'] > 0)) {
+    $testuser_id = intval($_REQUEST['testuser_id']);
+} else {
+    header('Location: index.php'); //redirect browser to public main page
+    exit;
+}
+
 // get test basic score
 $test_basic_score = 1;
 
@@ -62,7 +69,9 @@ $test_basic_score = $testdata['test_score_right'];
 //lock user's test
 F_lockUserTest($test_id, $_SESSION['session_user_id']);
 // get user's test stats
-$usrtestdata = F_getUserTestStat($test_id, $user_id, 0, true);
+//$usrtestdata = F_getUserTestStat($test_id, $user_id, 0, true);
+$usrtestdata = F_getUserTestStat($test_id,$user_id,$testuser_id, true);
+$teststat = F_getTestStat($test_id, 0, $user_id, 0, 0, $testuser_id);
 $userdata = F_getUserData($user_id);
 
 
@@ -77,32 +86,55 @@ $test_all = '<strong>'.htmlspecialchars($testdata['test_name'], ENT_NOQUOTES, $l
 $test_all .=htmlspecialchars($testdata['test_description'], ENT_NOQUOTES, $l['a_meta_charset']);
 echo getFormDescriptionLine($l['w_test'].':', $l['w_test'], $test_all);
 
-echo getFormDescriptionLine($l['w_time_begin'].':', $l['h_time_begin'], $usrtestdata['test_start_time']);
-echo getFormDescriptionLine($l['w_time_end'].':', $l['h_time_end'], $usrtestdata['test_end_time']);
+#echo getFormDescriptionLine($l['w_time_begin'].':', $l['h_time_begin'], $usrtestdata['test_start_time']);
+#echo getFormDescriptionLine($l['w_time_end'].':', $l['h_time_end'], $usrtestdata['test_end_time']);
+echo getFormDescriptionLine($l['w_time_begin'].':', $l['h_time_begin'], $usrtestdata['user_test_start_time']);
+echo getFormDescriptionLine($l['w_time_end'].':', $l['h_time_end'], $usrtestdata['user_test_end_time']);
 
-if (!isset($usrtestdata['test_end_time']) or ($usrtestdata['test_end_time'] <= 0)) {
+
+#if (!isset($usrtestdata['test_end_time']) or ($usrtestdata['test_end_time'] <= 0)) {
+if (!isset($usrtestdata['user_test_end_time']) or ($usrtestdata['user_test_end_time'] <= 0)) {
     $time_diff = $testdata['test_duration_time'] * 60;
 } else {
-    $time_diff = strtotime($usrtestdata['test_end_time']) - strtotime($usrtestdata['test_start_time']); //sec
+    #$time_diff = strtotime($usrtestdata['test_end_time']) - strtotime($usrtestdata['test_start_time']); //sec
+    $time_diff = strtotime($usrtestdata['user_test_end_time']) - strtotime($usrtestdata['user_test_start_time']); //sec
 }
 $time_diff = gmdate('H:i:s', $time_diff);
 echo getFormDescriptionLine($l['w_test_time'].':', $l['w_test_time'], $time_diff);
 
 $passmsg = '';
-if ($usrtestdata['score_threshold'] > 0) {
-    if ($usrtestdata['score'] >= $usrtestdata['score_threshold']) {
+#if ($usrtestdata['score_threshold'] > 0) {
+#   if ($usrtestdata['score'] >= $usrtestdata['score_threshold']) {
+    if ($usrtestdata['test_score_threshold'] > 0) {
+    if ($usrtestdata['user_score'] >= $usrtestdata['test_score_threshold']) {
         $passmsg = ' - '.$l['w_passed'];
     } else {
         $passmsg = ' - '.$l['w_not_passed'];
     }
 }
-$score_all = $usrtestdata['score'].' / '.$usrtestdata['max_score'].' ('.round(100 * $usrtestdata['score'] / $usrtestdata['max_score']).'%)'.$passmsg;
+#$score_all = $usrtestdata['score'].' / '.$usrtestdata['max_score'].' ('.round(100 * $usrtestdata['score'] / $usrtestdata['max_score']).'%)'.$passmsg;
+$score_all = $usrtestdata['user_score'].' / '.$usrtestdata['test_max_score'].' ('.round(100 * $usrtestdata['user_score'] / $usrtestdata['test_max_score']).'%)'.$passmsg;
 echo getFormDescriptionLine($l['w_score'].':', $l['h_score_total'], $score_all);
 
-$score_right_all = $usrtestdata['right'].' / '.$usrtestdata['all'].' ('.round(100 * $usrtestdata['right'] / $usrtestdata['all']).'%)';
+#$score_right_all = $usrtestdata['right'].' / '.$usrtestdata['all'].' ('.round(100 * $usrtestdata['right'] / $usrtestdata['all']).'%)';
+#echo getFormDescriptionLine($l['w_answers_right'].':', $l['h_answers_right'], $score_right_all);
+$score_right_all = $teststat['qstats']['right'].' / '.$teststat['qstats']['recurrence'].' ('.$teststat['qstats']['right_perc'].'%)';
 echo getFormDescriptionLine($l['w_answers_right'].':', $l['h_answers_right'], $score_right_all);
 
-echo getFormDescriptionLine($l['w_comment'].':', $l['h_testcomment'], F_decode_tcecode($usrtestdata['comment']));
+$score_wrong_all = $teststat['qstats']['wrong'].' / '.$teststat['qstats']['recurrence'].' ('.$teststat['qstats']['wrong_perc'].'%)';
+echo getFormDescriptionLine($l['w_answers_wrong'].':', $l['h_answers_wrong'], $score_wrong_all);
+
+$score_unanswered_all = $teststat['qstats']['unanswered'].' / '.$teststat['qstats']['recurrence'].' ('.$teststat['qstats']['unanswered_perc'].'%)';
+echo getFormDescriptionLine($l['w_questions_unanswered'].':', $l['h_questions_unanswered'], $score_unanswered_all);
+
+$score_undisplayed_all = $teststat['qstats']['undisplayed'].' / '.$teststat['qstats']['recurrence'].' ('.$teststat['qstats']['undisplayed_perc'].'%)';
+echo getFormDescriptionLine($l['w_questions_undisplayed'].':', $l['h_questions_undisplayed'], $score_undisplayed_all);
+
+$score_unrated_all = $teststat['qstats']['unrated'].' / '.$teststat['qstats']['recurrence'].' ('.$teststat['qstats']['unrated_perc'].'%)';
+echo getFormDescriptionLine($l['w_questions_unrated'].':', $l['h_questions_unrated'], $score_unrated_all);   
+
+#echo getFormDescriptionLine($l['w_comment'].':', $l['h_testcomment'], F_decode_tcecode($usrtestdata['comment']));
+echo getFormDescriptionLine($l['w_comment'].':', $l['h_testcomment'], F_decode_tcecode($usrtestdata['user_comment']));
 
 if (F_getBoolean($testdata['test_report_to_users'])) {
     echo '<div class="rowl">'.K_NEWLINE;
@@ -354,7 +386,8 @@ if (F_getBoolean($testdata['test_report_to_users'])) {
     if (K_ENABLE_PUBLIC_PDF) {
         echo '<div class="row">'.K_NEWLINE;
         // PDF button
-        echo '<a href="'.pdfLink(3, $test_id, 0, $user_id, '', 0).'" class="xmlbutton" title="'.$l['h_pdf'].'">'.$l['w_pdf'].'</a> ';
+        #echo '<a href="'.pdfLink(3, $test_id, 0, $user_id, '', 0).'" class="xmlbutton" title="'.$l['h_pdf'].'">'.$l['w_pdf'].'</a> ';
+        echo '<a href="tce_pdf_results.php?mode=3&test_id='.$test_id.'&user_id='.$user_id.'" class="xmlbutton" title="'.$l['h_pdf'].'">'.$l['w_pdf'].'</a> ';
         echo '</div>'.K_NEWLINE;
     }
 }

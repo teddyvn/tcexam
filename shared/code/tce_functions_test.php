@@ -88,9 +88,11 @@ function F_getUserTests()
                     $str .= '>';
                     if (isset($usrtestdata['user_score']) and (strlen(''.$usrtestdata['user_score']) > 0)) {
                         if ($usrtestdata['test_max_score'] > 0) {
-                            $str .= '<a href="tce_show_result_user.php?testuser_id='.$testuser_id.'&amp;test_id='.$m['test_id'].'" title="'.$l['h_result'].'">'.$usrtestdata['user_score'].' / '.$usrtestdata['test_max_score'].' ('.round(100 * $usrtestdata['user_score'] / $usrtestdata['test_max_score']).'%)'.$passmsg.'</a>';
+                            //$str .= '<a href="tce_show_result_user.php?testuser_id='.$testuser_id.'&amp;test_id='.$m['test_id'].'" title="'.$l['h_result'].'">'.$usrtestdata['user_score'].' / '.$usrtestdata['test_max_score'].' ('.round(100 * $usrtestdata['user_score'] / $usrtestdata['test_max_score']).'%)'.$passmsg.'</a>';
+                            $str .= '<a href="tce_test_results.php?testuser_id='.$testuser_id.'&amp;testid='.$m['test_id'].'" title="'.$l['h_result'].'">'.$usrtestdata['user_score'].' / '.$usrtestdata['test_max_score'].' ('.round(100 * $usrtestdata['user_score'] / $usrtestdata['test_max_score']).'%)'.$passmsg.'</a>';
                         } else {
-                            $str .= '<a href="tce_show_result_user.php?testuser_id='.$testuser_id.'&amp;test_id='.$m['test_id'].'" title="'.$l['h_result'].'">'.$usrtestdata['user_score'].$passmsg.'</a>';
+                            //$str .= '<a href="tce_show_result_user.php?testuser_id='.$testuser_id.'&amp;test_id='.$m['test_id'].'" title="'.$l['h_result'].'">'.$usrtestdata['user_score'].$passmsg.'</a>';
+                            $str .= '<a href="tce_test_results.php?testuser_id='.$testuser_id.'&amp;testid='.$m['test_id'].'" title="'.$l['h_result'].'">'.$usrtestdata['user_score'].$passmsg.'</a>';
                         }
                     } else {
                         $str .= '&nbsp;';
