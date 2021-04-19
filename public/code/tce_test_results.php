@@ -294,6 +294,8 @@ if (F_getBoolean($testdata['test_report_to_users'])) {
                                 }
                             }
                             echo '&nbsp;';
+                            //Don't show the answer to user.
+                            /*
                             if ($m['question_type'] == 4) {
                                 echo '<acronym title="'.$l['w_position'].'" class="onbox">'.$ma['answer_position'].'</acronym>';
                             } elseif (F_getBoolean($ma['answer_isright'])) {
@@ -301,6 +303,7 @@ if (F_getBoolean($testdata['test_report_to_users'])) {
                             } else {
                                 echo '<acronym title="'.$l['w_answers_wrong'].'" class="offbox">&nbsp;</acronym>';
                             }
+                            */
                             echo ' ';
                             echo F_decode_tcecode($ma['answer_description']);
                             if (K_ENABLE_ANSWER_EXPLANATION and !empty($ma['answer_explanation'])) {

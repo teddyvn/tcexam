@@ -51,6 +51,7 @@ function F_getUserTests()
     if ($r = F_db_query($sql, $db)) {
         while ($m = F_db_fetch_array($r)) { // for each active test
             $expired = false;
+            $isPassed = false;
             // check user's authorization
             if (F_isValidTestUser($m['test_id'], $_SESSION['session_user_ip'], $m['test_ip_range'])) {
                 // the user's IP is valid, check test status
@@ -80,9 +81,11 @@ function F_getUserTests()
                         if ($usrtestdata['user_score'] >= $usrtestdata['test_score_threshold']) {
                             $str .= ' style="background-color:#ddffdd;"';
                             $passmsg = ' - '.$l['w_passed'];
+                            $isPassed = true;
                         } else {
                             $str .= ' style="background-color:#ffdddd;"';
                             $passmsg = ' - '.$l['w_not_passed'];
+                            $isPassed = false;
                         }
                     }
                     $str .= '>';
@@ -126,7 +129,9 @@ function F_getUserTests()
                             break;
                         }
                         default: { // 4 or greater = test can be repeated
-                            if (F_getBoolean($m['test_repeatable'])) {
+                            // Just allow to retry 1 and test failed
+                            //if (F_getBoolean($m['test_repeatable'])) {
+                                if (F_getBoolean($m['test_repeatable']) && !$isPassed && F_getTestRetried($user_id, $m['test_id']) <= 1 ){
                                 // print execute test link
                                 $str .= '<a href="';
                                 if (K_DISPLAY_TEST_DESCRIPTION or !empty($m['test_password'])) {
@@ -340,7 +345,15 @@ function F_terminateUserTest($test_id)
         F_display_db_error();
     }
 }
-
+/**
+ * Count the number times of retries.<br>
+ * @param $user_id (int) user ID
+ * @param $test_id (int) test ID
+ * @return retried times
+ */
+function F_getTestRetried($user_id, $test_id){
+  return F_count_rows(K_TABLE_TEST_USER,'WHERE testuser_test_id='.$test_id.' AND testuser_user_id='.$user_id.' AND testuser_status >= 4');
+}
 /**
  * Check and returns specific test status for the specified user.<br>
  * @param $user_id (int) user ID
