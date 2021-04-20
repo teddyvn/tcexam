@@ -116,6 +116,12 @@ define('K_ENABLE_PUBLIC_PDF', true);
  */
 define('K_HIDE_EXPIRED_TESTS', false);
 
+/**
+ * When show test result details, we show question answer or not.
+ */
+
+define('K_HIDE_QUESTION_ANSWERS', true);
+
 // --- INCLUDE FILES -----------------------------------------------------------
 
 require_once('../../shared/config/tce_db_config.php');

@@ -822,12 +822,20 @@ class TCPDFEX extends TCPDF
                                     $this->Cell($tce_data_cell_width_third, $this->tce_data_cell_height, ' ', 1, 0, 'C', 0);
                                 }
                             }
-                            if ($m['question_type'] == 4) {
-                                    $this->Cell($tce_data_cell_width_third, $this->tce_data_cell_height, $ma['answer_position'], 1, 0, 'C', $posfill);
-                            } elseif (F_getBoolean($ma['answer_isright'])) {
-                                $this->Cell($tce_data_cell_width_third, $this->tce_data_cell_height, $idx, 1, 0, 'C', 1);
+                            if (K_HIDE_QUESTION_ANSWERS) {
+                                if ($m['question_type'] == 4) {
+                                    $this->Cell($tce_data_cell_width_third, $this->tce_data_cell_height, '', 1, 0, 'C', $posfill);
+                                } else {
+                                    $this->Cell($tce_data_cell_width_third, $this->tce_data_cell_height, $idx, 1, 0, 'C', 0);
+                                }
                             } else {
-                                $this->Cell($tce_data_cell_width_third, $this->tce_data_cell_height, $idx, 1, 0, 'C', 0);
+                                if ($m['question_type'] == 4) {
+                                    $this->Cell($tce_data_cell_width_third, $this->tce_data_cell_height, $ma['answer_position'], 1, 0, 'C', $posfill);
+                                } elseif (F_getBoolean($ma['answer_isright'])) {
+                                    $this->Cell($tce_data_cell_width_third, $this->tce_data_cell_height, $idx, 1, 0, 'C', 1);
+                                } else {
+                                    $this->Cell($tce_data_cell_width_third, $this->tce_data_cell_height, $idx, 1, 0, 'C', 0);
+                                }
                             }
                             $this->writeHTMLCell(0, $this->tce_data_cell_height, (PDF_MARGIN_LEFT + $tce_data_cell_width), $this->GetY(), F_decode_tcecode($ma['answer_description']), 'LRTB', 1);
                             if (K_ENABLE_ANSWER_EXPLANATION and !empty($ma['answer_explanation'])) {
